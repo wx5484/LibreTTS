@@ -197,7 +197,7 @@ async function fetchCustomSpeakers(apiId) {
         } else {
             // 如果响应格式不匹配预期
             console.warn('API返回格式不是标准OpenAI格式:', data);
-            return { 'default': '自定义讲述者' };
+            return { 'default': '自定义讲述人' };
         }
     } catch (error) {
         console.error('获取自定义讲述者失败:', error);
@@ -1224,7 +1224,7 @@ function splitText(text, maxLength = 5000) {
     const segments = [];
     let remainingText = text.trim();
 
-    const punctuationGroups = [
+     const punctuationGroups = [
         // 第一优先级: 换行符
         ['\n', '\r\n'],  
         
@@ -1490,8 +1490,8 @@ function showInfo(message) {
 // 根据选择的API格式更新表单占位符
 function updateApiFormPlaceholders(format) {
     if (format === 'openai') {
-        $('#apiEndpoint').attr('placeholder', 'https://api.example.com/v1/audio/speech');
-        $('#modelEndpoint').attr('placeholder', 'https://api.example.com/v1/models');
+        $('#apiEndpoint').attr('placeholder', 'https://api.openai.com/v1/audio/speech');
+        $('#modelEndpoint').attr('placeholder', 'https://api.openai.com/v1/models');
         $('#apiKey').attr('placeholder', 'sk-...');
         $('#manualSpeakers').attr('placeholder', 'tts-1,tts-1-hd,alloy,echo,fable,onyx,nova,shimmer');
     } else if (format === 'edge') {
@@ -1499,6 +1499,21 @@ function updateApiFormPlaceholders(format) {
         $('#modelEndpoint').attr('placeholder', 'https://api.example.com/api/voices');
         $('#apiKey').attr('placeholder', 'x-api-key: ...');
         $('#manualSpeakers').attr('placeholder', 'zh-CN-XiaoxiaoNeural,en-US-AriaNeural,...');
+    }
+
+    // Set default values only when creating a new API (editingApiId is null)
+    if (editingApiId === null) {
+        if (format === 'openai') {
+            $('#apiEndpoint').val('https://api.openai.com/v1/audio/speech');
+            $('#modelEndpoint').val('https://api.openai.com/v1/models');
+        } else {
+            // For Edge or other formats, clear these fields or set to a generic example if desired
+            // For now, clearing them is consistent with form.reset() behavior for other fields
+            $('#apiEndpoint').val('');
+            $('#modelEndpoint').val('');
+        }
+        // Other fields like apiName, apiKey, manualSpeakers, maxLength are reset by form.reset()
+        // or explicitly cleared when the modal is opened for a new API.
     }
 }
 
