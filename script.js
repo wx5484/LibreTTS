@@ -757,30 +757,11 @@ function refreshSavedApisList() {
 
 // 更新字符计数提示文本
 function updateCharCountText() {
-    const currentText = $('#text').val();
-    const currentUnits = getTextLength(currentText); // Calculate current units
+    const currentLength = getTextLength($('#text').val());
     const apiName = $('#api').val();
-    const customApi = customAPIs[apiName];
-
-    let displayMaxTotalUnits, displayMaxSegmentUnits, inputMaxChars;
-    let message;
-
-    if (apiName === 'oai-tts' || (customApi && customApi.format === 'openai')) {
-        displayMaxSegmentUnits = customApi?.maxLength || 400; // Segment limit in units
-        displayMaxTotalUnits = 2000; // Total limit in units for OAI
-        inputMaxChars = 2000; // Textarea character limit for OAI-type
-        message = `总 ${currentUnits}/${displayMaxTotalUnits} 单位, 段限 ${displayMaxSegmentUnits} 单位. 输入 ${currentText.length}/${inputMaxChars} 字符.`;
-    } else { // Edge or custom Edge-like
-        displayMaxSegmentUnits = customApi?.maxLength || 5000; // Segment limit in units
-        inputMaxChars = 100000; // Textarea character limit for Edge-type
-        // For Edge, total unit limit is less strict, mainly constrained by inputMaxChars and segment limits.
-        message = `总 ${currentUnits} 单位 (段限 ${displayMaxSegmentUnits} 单位). 输入 ${currentText.length}/${inputMaxChars} 字符.`;
-        if (apiName === 'edge-api') {
-             message += ` 长文本将智能分段。`;
-        }
-    }
-    $('#charCount').text(message);
-    $('#text').attr('maxlength', inputMaxChars);
+    const { maxSegment, maxTotal } = getApiLimits(apiName);
+    $('#charCount').text(`最多${maxTotal}个字符，单段最多${maxSegment}个字符，目前已输入${currentLength}个字符`);
+    $('#text').attr('maxlength', maxTotal);
 }
 
 function canMakeRequest() {
@@ -914,13 +895,20 @@ async function makeRequest(url, isPreview, text, requestInfo = '', speakerId = n
         if (apiFormat === 'openai') {
             text = text.replace(/<break\s+time=["'](\d+(?:\.\d+)?[ms]s?)["']\s*\/>/g, '');
             
-            const textUnits = getTextLength(text);
-            const apiSegmentUnitLimit = customApi?.maxLength || 400;
-            // const apiTotalUnitLimit = 2000; // Total limit is primarily an input constraint, handled by UI and splitting.
-
-            // Validate the current segment's length against the API's segment limit
-            if (textUnits > apiSegmentUnitLimit) {
-                throw new Error(`OpenAI API: Text segment unit count ${textUnits} exceeds the per-segment limit of ${apiSegmentUnitLimit}.`);
+            // 对OAI格式API添加文本长度验证 - 修改长度限制逻辑
+            const textLength = getTextLength(text);
+            const maxSegmentLength = customApi?.maxLength || 1000;
+            const maxTotalLength = customApi?.maxLength ? customApi.maxLength * 5 : 5000;
+            
+            // 检查总长度限制
+            if (textLength > maxTotalLength) {
+                throw new Error(`OpenAI格式API文本总长度超限，最多支持${maxTotalLength}个单位，当前长度: ${textLength}`);
+            }
+            
+            // 检查单段长度限制（用于非预览请求）
+            if (!isPreview && textLength > maxSegmentLength) {
+                // 这里不抛错，让分段逻辑处理
+                console.log(`文本将被分段处理，单段限制: ${maxSegmentLength}个单位`);
             }
         } else {
             // 转义文本中的特殊字符，但保护 SSML 标签
@@ -1217,7 +1205,7 @@ function getTextLength(str) {
     const textWithoutTags = str.replace(/<break\s+time="(\d+(?:\.\d+)?)(m?s)"\s*\/>/g, (match, time, unit) => {
         const seconds = unit === 'ms' ? parseFloat(time) / 1000 : parseFloat(time);
         totalPauseTime += seconds;
-        return ''; // Return empty string to effectively remove the tag for length calculation
+        return '';
     });
 
     // 计算文本长度（中文2字符，英文1字符）
@@ -1231,20 +1219,19 @@ function getTextLength(str) {
     return textLength + pauseLength;
 }
 
-function splitText(text) { // Removed maxLength parameter from signature as it's determined internally
-    // 根据不同API设置不同的分段大小
-    const apiName = $('#api').val();
-    const customApi = customAPIs[apiName];
-    
-    let segmentUnitLimit;
-    if (apiName === 'oai-tts' || (customApi && customApi.format === 'openai')) {
-        // OAI-TTS格式：单段限制，用户自定义优先，否则默认400单位
-        segmentUnitLimit = customApi?.maxLength || 400;
+// 返回每个API的最大段长和总长
+function getApiLimits(apiName) {
+    // returns { maxSegment, maxTotal } for each API
+    if (apiName === 'oai-tts' || (customAPIs[apiName] && customAPIs[apiName].format === 'openai')) {
+        return { maxSegment: 400, maxTotal: 2000 };
     } else {
-        // Edge API格式：单段限制，用户自定义优先，否则默认5000单位
-        segmentUnitLimit = customApi?.maxLength || 5000;
+        return { maxSegment: 5000, maxTotal: 100000 };
     }
-    
+}
+
+function splitText(text) {
+    const apiName = $('#api').val();
+    const { maxSegment } = getApiLimits(apiName);
     const segments = [];
     let remainingText = text.trim();
 
@@ -1320,7 +1307,7 @@ function splitText(text) { // Removed maxLength parameter from signature as it's
         for (let i = 0; i < remainingText.length; i++) {
             currentLength += remainingText.charCodeAt(i) > 127 ? 2 : 1;
             
-            if (currentLength > segmentUnitLimit) { // Use the determined segmentUnitLimit
+            if (currentLength > maxSegment) {
                 splitIndex = i;
                 // 先遍历优先级组
                 for (let priority = 0; priority < punctuationGroups.length; priority++) {
@@ -1330,7 +1317,7 @@ function splitText(text) { // Removed maxLength parameter from signature as it's
                         searchLength += remainingText.charCodeAt(j) > 127 ? 2 : 1;
                         
                         if (punctuationGroups[priority].includes(remainingText[j])) {
-                            // 找到当前优先级的分段点，记录位置并停止搜索
+                            // 找到当前优先级的标点，记录位置并停止搜索
                             bestPriorityFound = priority;
                             bestSplitIndex = j;
                             break;
@@ -1356,7 +1343,8 @@ function splitText(text) { // Removed maxLength parameter from signature as it's
 
 function showLoading(message) {
     let loadingToast = $('.toast-loading');
-    if (loadingToast.length && message === '') { // If message is empty, only update progress bar
+    if (loadingToast.length) {
+        // 如果已存在 loading toast，只更新进度条，不更新消息
         loadingToast.find('.progress-bar').css('width', '0%');
         return;
     }
