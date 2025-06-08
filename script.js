@@ -759,9 +759,23 @@ function refreshSavedApisList() {
 function updateCharCountText() {
     const currentLength = getTextLength($('#text').val());
     const apiName = $('#api').val();
-    const { maxSegment, maxTotal } = getApiLimits(apiName);
-    $('#charCount').text(`最多${maxTotal}个字符，单段最多${maxSegment}个字符，目前已输入${currentLength}个字符`);
+    const { maxTotal } = getApiLimits(apiName);
+    const percentage = Math.round((currentLength / maxTotal) * 100);
+    
+    $('#charCount').text(`${percentage}% (${currentLength}/${maxTotal}单位)`);
     $('#text').attr('maxlength', maxTotal);
+    
+    // 如果超过100%，阻止继续输入
+    if (currentLength > maxTotal) {
+        const textarea = $('#text')[0];
+        let text = textarea.value;
+        // 截断文本直到符合长度限制
+        while (getTextLength(text) > maxTotal && text.length > 0) {
+            text = text.slice(0, -1);
+        }
+        textarea.value = text;
+        $('#charCount').text(`100% (${getTextLength(text)}/${maxTotal}单位)`);
+    }
 }
 
 function canMakeRequest() {
@@ -1317,7 +1331,7 @@ function splitText(text) {
                         searchLength += remainingText.charCodeAt(j) > 127 ? 2 : 1;
                         
                         if (punctuationGroups[priority].includes(remainingText[j])) {
-                            // 找到当前优先级的标点，记录位置并停止搜索
+                            // 找到当前优先级的分段点，记录位置并停止搜索
                             bestPriorityFound = priority;
                             bestSplitIndex = j;
                             break;
