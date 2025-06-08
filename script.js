@@ -9,7 +9,7 @@ const API_CONFIG = {
         url: '/api/tts'
     },
     'oai-tts': {
-        url: 'https://oai-tts-proxy.zwei.de.eu.org/v1/audio/speech'
+        url: 'https://oai-tts.zwei.de.eu.org/v1/audio/speech'
     }
 };
 
@@ -420,10 +420,17 @@ $(document).ready(function() {
         const format = $('#apiFormat').val();
         const manual = $('#manualSpeakers').val().split(',').map(s=>s.trim()).filter(Boolean);
         const maxLen = parseInt($('#maxLength').val()) || null;
+        const enableSegmentation = $('#enableSegmentation').prop('checked');
         const id = editingApiId || ('custom-' + Date.now());
-        customAPIs[id] = { name, endpoint, apiKey:key, modelEndpoint, format, manual, maxLength: maxLen };
+        customAPIs[id] = { 
+            name, endpoint, apiKey:key, modelEndpoint, format, manual, 
+            maxLength: maxLen, enableSegmentation 
+        };
         localStorage.setItem('customAPIs', JSON.stringify(customAPIs));
-        API_CONFIG[id] = { url:endpoint, isCustom:true, apiKey:key, format, manual, maxLength: maxLen };
+        API_CONFIG[id] = { 
+            url:endpoint, isCustom:true, apiKey:key, format, manual, 
+            maxLength: maxLen, enableSegmentation 
+        };
         updateApiOptions();
         refreshSavedApisList();
         $('#customApiForm')[0].reset();
@@ -1235,7 +1242,7 @@ function splitText(text, maxLength = 5000) {
             '。', '！', '？',           // 日文
             '︒', '︕', '︖',           // 全角
             '｡', '!', '?',            // 半角
-            '।', '॥',                 // 梵文
+            '。', '॥',                 // 梵文
             '؟', '۔',                 // 阿拉伯文
             '។', '៕',                 // 高棉文
             '။', '၏',                 // 缅甸文
@@ -1263,7 +1270,7 @@ function splitText(text, maxLength = 5000) {
             '､', ':', '،',          // 半角/阿拉伯文
             '፣', '፥',               // 埃塞俄比亚文
             '၊', '၌',               // 缅甸文
-            '،', '؍',               // 波斯文
+            '、', '؍',               // 波斯文
             '׀', '，'                // 希伯来文
         ],
         
@@ -1273,10 +1280,7 @@ function splitText(text, maxLength = 5000) {
             '-', '—', '–',           // 英文破折号
             '‥', '〳', '〴', '〵',   // 日文重复符号
             '᠁', '᠂', '᠃',          // 蒙古文
-            '᭛', '᭜', '᭝',          // 巴厘文
-            '᱾', '᱿',               // 雷布查文
-            '⁂', '※',               // 特殊符号
-            '〽', '〜'                // 其他变音符号
+            '᭛', '᭜', '᭝'          // 巴厘文
         ],
         
         // 第六优先级: 空格和其他分隔符
