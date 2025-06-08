@@ -761,11 +761,14 @@ function updateCharCountText() {
     const apiName = $('#api').val();
     const customApi = customAPIs[apiName];
     
-    if (customApi) {
+    if (apiName === 'oai-tts' || (customApi && customApi.format === 'openai')) {
+        // OAI格式：总长度限制5000个单位，单段1000个单位
+        const maxTotal = customApi?.maxLength ? customApi.maxLength * 5 : 5000;
+        const maxSegment = customApi?.maxLength || 1000;
+        $('#charCount').text(`最多${maxTotal}个字符，单段最多${maxSegment}个字符，目前已输入${currentLength}个字符`);
+    } else if (customApi) {
         const maxLength = customApi.maxLength || 100000;
         $('#charCount').text(`最多${maxLength}字符，目前已输入${currentLength}字符。`);
-    } else if (apiName === 'oai-tts' || customAPIs[apiName]) {
-        $('#charCount').text(`最多100个中文字符或约150个英文字符，目前已输入${currentLength}个字符`);
     } else {
         $('#charCount').text(`最多100000个字符，目前已输入${currentLength}个字符；长文本将智能分段生成语音。`);
     }
@@ -902,14 +905,20 @@ async function makeRequest(url, isPreview, text, requestInfo = '', speakerId = n
         if (apiFormat === 'openai') {
             text = text.replace(/<break\s+time=["'](\d+(?:\.\d+)?[ms]s?)["']\s*\/>/g, '');
             
-            // 对OAI格式API添加文本长度验证
-            const chineseChars = text.match(/[\u4e00-\u9fa5]/g) || [];
-            const otherChars = text.length - chineseChars.length;
-            const effectiveLength = chineseChars.length + otherChars / 1.5;
-            const maxLength = customApi?.maxLength || 100;
+            // 对OAI格式API添加文本长度验证 - 修改长度限制逻辑
+            const textLength = getTextLength(text);
+            const maxSegmentLength = customApi?.maxLength || 1000;
+            const maxTotalLength = customApi?.maxLength ? customApi.maxLength * 5 : 5000;
             
-            if (effectiveLength > maxLength) {
-                throw new Error(`OpenAI格式API文本长度超限，最多支持${maxLength}个中文字符或约${Math.round(maxLength * 1.5)}个英文字符，当前等效长度: ${Math.round(effectiveLength)}`);
+            // 检查总长度限制
+            if (textLength > maxTotalLength) {
+                throw new Error(`OpenAI格式API文本总长度超限，最多支持${maxTotalLength}个单位，当前长度: ${textLength}`);
+            }
+            
+            // 检查单段长度限制（用于非预览请求）
+            if (!isPreview && textLength > maxSegmentLength) {
+                // 这里不抛错，让分段逻辑处理
+                console.log(`文本将被分段处理，单段限制: ${maxSegmentLength}个单位`);
             }
         } else {
             // 转义文本中的特殊字符，但保护 SSML 标签
@@ -1221,11 +1230,16 @@ function getTextLength(str) {
 }
 
 function splitText(text, maxLength = 5000) {
-    // 如果是OAI-TTS，使用更小的分段大小
+    // 根据不同API设置不同的分段大小
     const apiName = $('#api').val();
-    if (apiName === 'oai-tts') {
-        // 对于OAI-TTS，限制为100个中文字符
-        maxLength = 100;
+    const customApi = customAPIs[apiName];
+    
+    if (apiName === 'oai-tts' || (customApi && customApi.format === 'openai')) {
+        // OAI-TTS格式：单段限制1000个单位
+        maxLength = customApi?.maxLength || 1000;
+    } else {
+        // Edge API格式：单段限制5000个单位  
+        maxLength = customApi?.maxLength || 5000;
     }
     
     const segments = [];
@@ -1241,7 +1255,7 @@ function splitText(text, maxLength = 5000) {
             '.', '!', '?',            // 英文
             '。', '！', '？',           // 日文
             '︒', '︕', '︖',           // 全角
-            '｡', '!', '?',            // 半角
+            '｡', '!', '?',            // 半角/阿拉伯文
             '。', '॥',                 // 梵文
             '؟', '۔',                 // 阿拉伯文
             '។', '៕',                 // 高棉文
