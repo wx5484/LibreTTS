@@ -760,17 +760,22 @@ function updateCharCountText() {
     const currentLength = $('#text').val().length;
     const apiName = $('#api').val();
     const customApi = customAPIs[apiName];
-    
+
+    let maxTotal, maxSegment;
     if (apiName === 'oai-tts' || (customApi && customApi.format === 'openai')) {
         // OAI格式：总长度限制5000个单位，单段1000个单位
-        const maxTotal = customApi?.maxLength ? customApi.maxLength * 5 : 5000;
-        const maxSegment = customApi?.maxLength || 1000;
+        maxTotal = customApi?.maxLength ? customApi.maxLength * 5 : 5000;
+        maxSegment = customApi?.maxLength || 1000;
         $('#charCount').text(`最多${maxTotal}个字符，单段最多${maxSegment}个字符，目前已输入${currentLength}个字符`);
+        $('#text').attr('maxlength', maxTotal);
     } else if (customApi) {
-        const maxLength = customApi.maxLength || 100000;
-        $('#charCount').text(`最多${maxLength}字符，目前已输入${currentLength}字符。`);
+        maxTotal = customApi.maxLength || 100000;
+        $('#charCount').text(`最多${maxTotal}字符，目前已输入${currentLength}字符。`);
+        $('#text').attr('maxlength', maxTotal);
     } else {
+        maxTotal = 100000;
         $('#charCount').text(`最多100000个字符，目前已输入${currentLength}个字符；长文本将智能分段生成语音。`);
+        $('#text').attr('maxlength', maxTotal);
     }
 }
 
