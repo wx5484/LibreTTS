@@ -17,7 +17,7 @@ LibreTTS 是一款免费的在线文本转语音工具，支持多种声音选�
 
 <div style="text-align:center;">
   <a href="https://dartnode.com">
-    <img src="https://testingcf.jsdelivr.net/gh/bestZwei/imgs@master/picgo/DN-Open-Source-sm.png" width="50%">
+    <img src="https://testingcf.jsdelivr.net/gh/bestZwei/imgs@master/picgo/DN-Open-Source-sm.png" width="70%">
   </a>
 </div>
 
