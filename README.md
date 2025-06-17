@@ -15,12 +15,6 @@ LibreTTS 是一款免费的在线文本转语音工具，支持多种声音选�
 - 📝 历史记录功能（最多保存50条）
 - 🔌 支持添加自定义OpenAI格式的TTS API
 
-<div style="text-align:center;">
-  <a href="https://dartnode.com">
-    <img src="https://testingcf.jsdelivr.net/gh/bestZwei/imgs@master/picgo/DN-Open-Source-sm.png" width="70%">
-  </a>
-</div>
-
 ## API 说明
 
 本项目提供以下 API 端点:
@@ -119,3 +113,5 @@ LibreTTS 支持添加自定义 API 端点，目前支持两种格式：
 ## 环境变量
 
 除了原有配置外，现在项目支持设置环境变量 PASSWORD 来开启访问密码验证。如果 PASSWORD 非空，则用户第一次访问页面时会显示密码输入界面，输入正确后在该设备上后续访问将不再需要验证。
+
+[![Powered by DartNode](https://dartnode.com/branding/DN-Open-Source-sm.png)](https://dartnode.com "Powered by DartNode - Free VPS for Open Source")
