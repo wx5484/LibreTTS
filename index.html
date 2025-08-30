@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- 核心SEO标签 -->
-    <title>文本转语音 | 免费在线TTS转换工具 - LibreTTS</title>
-    <meta name="description" content="LibreTTS 是一款免费的在线文本转语音工具，支持多种声音选择，可调节语速和语调，提供即时试听和下载功能。快速将文字转换成自然流畅的语音。LibreTTS是免费的文本转语音工具，提供语音合成服务，支持多种语言，包括英语、法语、德语、西班牙语、阿拉伯语、中文、日语、朝鲜语、粤语、越南语等，以及多种语音风格，提供丰富的讲述人。LibreTTS is an online text-to-speech tool, also known as a voice generator, it can convert text to audio, and you can play or download audio files. Free online text-to-speech converter supporting multiple voices, adjustable speed and pitch, with instant preview and download features.">
+    <title>文本转语音 - LibreTTS</title>
+    <meta name="description" content="感谢github作者LibreSpark开源">
     <meta name="keywords" content="文本转语音,TTS,语音合成,在线配音,OpenAI 文本转语音,OpenAI,AI,讲述人,FREE TTS,文字转语音,语音生成器,AI配音,免费TTS,在线朗读,文案工具">
     <meta name="author" content="Zwei">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://libretts.is-an.org/">
     
     <!-- Open Graph标签增强 -->
-    <meta property="og:title" content="文本转语音 | 免费在线TTS转换工具 - LibreTTS">
-    <meta property="og:description" content="LibreTTS 是一款免费的在线文本转语音工具，支持多种声音选择，可调节语速和语调，提供即时试听和下载功能。快速将文字转换成自然流畅的语音。LibreTTS是免费的文本转语音工具，提供语音合成服务，支持多种语言，包括英语、法语、德语、西班牙语、阿拉伯语、中文、日语、朝鲜语、粤语、越南语等，以及多种语音风格，提供丰富的讲述人。LibreTTS is an online text-to-speech tool, also known as a voice generator, it can convert text to audio, and you can play or download audio files. Free online text-to-speech converter supporting multiple voices, adjustable speed and pitch, with instant preview and download features.">
+    <meta property="og:title" content="文本转语音 - LibreTTS">
+    <meta property="og:description" content="感谢github作者LibreSpark开源">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://libretts.is-an.org/">
     <meta property="og:image" content="https://libretts.is-an.org/image/TTS.png">
@@ -23,8 +23,8 @@
     
     <!-- Twitter Card标签增强 -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="文本转语音 | 免费在线TTS转换工具 - LibreTTS">
-    <meta name="twitter:description" content="LibreTTS是一款免费的在线文本转语音工具,支持多种声音选择,可调节语速和语调,提供即时试听和下载功能。">
+    <meta name="twitter:title" content="文本转语音 - LibreTTS">
+    <meta name="twitter:description" content="感谢github作者LibreSpark开源">
     <meta name="twitter:image" content="https://libretts.is-an.org/image/TTS.png">
     
     <!-- 其他原有标签 -->
@@ -46,17 +46,17 @@
 </head>
 <body>
     <!-- 新增：密码验证弹窗 -->
-    <div id="passwordModal" class="modal" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index:1000;">
+    <div id="passwordModal" class="modal" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index:1000;">
         <div class="modal-dialog" style="max-width: 400px; margin: 15% auto;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">请输入访问密码</h5>
+            <div class="modal-content" style="background: linear-gradient(145deg, #2a2a2a 0%, #363636 100%); color: #e8e8e8; border: 1px solid #555; border-radius: 15px;">
+                <div class="modal-header" style="background: linear-gradient(145deg, #404040 0%, #505050 100%); border-bottom: 1px solid #555; border-radius: 15px 15px 0 0; padding: 1rem;">
+                    <h5 class="modal-title" style="color: #ffffff; margin: 0;">请输入访问密码</h5>
                 </div>
-                <div class="modal-body">
-                    <input type="password" id="passwordInput" class="form-control" placeholder="密码">
-                    <div id="passwordError" class="alert alert-danger mt-2" style="display:none;"></div>
+                <div class="modal-body" style="padding: 1.5rem;">
+                    <input type="password" id="passwordInput" class="form-control" placeholder="密码" style="background: #3a3a3a; border-color: rgba(255,255,255,0.2); color: #e8e8e8;">
+                    <div id="passwordError" class="alert alert-danger mt-2" style="display:none; background: #d63031; color: #ffffff; border: none;"></div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer" style="padding: 1rem; border-top: 1px solid #555; border-radius: 0 0 15px 15px;">
                     <button id="passwordSubmit" class="btn btn-primary">提交</button>
                 </div>
             </div>
@@ -88,7 +88,7 @@
     <div class="container-fluid d-flex flex-column justify-content-center align-items-center mt-5" style="min-height: 90vh;">
         <div class="row w-100 justify-content-center g-4">
             <!-- 表单容器 -->
-            <div class="col-12 col-md-8 col-lg-6 col-xl-5 mb-3">
+            <div class="col-12 col-md-10 col-lg-8 col-xl-7 mb-3">
                 <div class="card shadow-sm h-100">
                     <div class="card-header text-center">
                         <h2>文本转语音</h2>
@@ -198,7 +198,7 @@
             </div>
 
             <!-- 历史记录容器 -->
-            <div class="col-12 col-md-8 col-lg-6 col-xl-5 mb-3">
+            <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                 <div class="card shadow-sm h-100">
                     <div class="card-header text-center">
                         <h2>历史记录</h2>
@@ -335,20 +335,61 @@
 
     <!-- 在现有脚本引用前加入密码验证逻辑 -->
     <script>
+        let authTimeout;
+        
         // 检查是否需要密码
-        fetch('/api/check-password')
-            .then(res => res.json())
-            .then(data => {
-                if (data.requirePassword && localStorage.getItem('authenticated') !== 'true') {
-                    document.getElementById('passwordModal').style.display = 'block';
-                }
-            })
-            .catch(err => {
-                console.error('检查密码需求失败', err);
-            });
+        function checkPasswordRequirement() {
+            fetch('/api/check-password')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.requirePassword) {
+                        const authenticated = localStorage.getItem('authenticated');
+                        const authTime = localStorage.getItem('authTime');
+                        const now = Date.now();
+                        
+                        // 检查是否超时（8小时）
+                        if (!authenticated || !authTime || (now - parseInt(authTime)) > 8 * 60 * 60 * 1000) {
+                            showPasswordModal();
+                        } else {
+                            setAuthTimeout();
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error('检查密码需求失败', err);
+                });
+        }
+        
+        function showPasswordModal() {
+            document.getElementById('passwordModal').style.display = 'block';
+            document.getElementById('passwordInput').focus();
+        }
+        
+        function setAuthTimeout() {
+            // 清除旧的超时器
+            if (authTimeout) clearTimeout(authTimeout);
+            
+            // 设置8小时后自动登出
+            authTimeout = setTimeout(() => {
+                localStorage.removeItem('authenticated');
+                localStorage.removeItem('authTime');
+                showPasswordModal();
+            }, 8 * 60 * 60 * 1000);
+        }
+        
+        // 页面加载时检查
+        checkPasswordRequirement();
             
         document.getElementById('passwordSubmit').addEventListener('click', function() {
             const passValue = document.getElementById('passwordInput').value;
+            const errorBox = document.getElementById('passwordError');
+            
+            if (!passValue.trim()) {
+                errorBox.style.display = 'block';
+                errorBox.innerText = '请输入密码';
+                return;
+            }
+            
             fetch('/api/verify-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -361,14 +402,26 @@
             .then(result => {
                 if (result.valid) {
                     localStorage.setItem('authenticated', 'true');
+                    localStorage.setItem('authTime', Date.now().toString());
                     document.getElementById('passwordModal').style.display = 'none';
+                    document.getElementById('passwordInput').value = '';
+                    errorBox.style.display = 'none';
+                    setAuthTimeout();
                 }
             })
             .catch(error => {
-                const errBox = document.getElementById('passwordError');
-                errBox.style.display = 'block';
-                errBox.innerText = error.message;
+                errorBox.style.display = 'block';
+                errorBox.innerText = error.message;
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
             });
+        });
+        
+        // 支持回车键提交
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('passwordSubmit').click();
+            }
         });
     </script>
 
