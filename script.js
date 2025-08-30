@@ -1491,16 +1491,7 @@ async function generateVoiceForLongText(segments, currentRequestId, currentSpeak
 // 在 body 末尾添加 toast 容器
 $('body').append('<div class="toast-container"></div>');
 
-// 可以添加其他类型的消息提示
-function showWarning(message) {
-    showMessage(message, 'warning');
-}
-
-function showInfo(message) {
-    showMessage(message, 'info');
-}
-
-// 可以添加其他类型的消息提示
+// 消息提示函数
 function showWarning(message) {
     showMessage(message, 'warning');
 }
